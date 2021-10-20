@@ -1,0 +1,102 @@
+function linksBulk() {
+  var ss=SpreadsheetApp.getActiveSpreadsheet();
+  var s=ss.getActiveSheet();
+  var c=s.getActiveCell();
+  var fldr=DriveApp.getFolderById("gdLink");
+  var files=fldr.getFiles();
+  var names=[],f,str;
+  while (files.hasNext()) {
+    f=files.next();
+    str='=hyperlink("' + f.getUrl() + '","' + f.getName() + '")';
+    names.push([str]);
+  }
+  
+  names.sort((a,b) => CompareStringArray(a,b));
+  
+  s.getRange(c.getRow(),c.getColumn(),names.length).setFormulas(names);
+}
+
+function linkURL(reference) {
+  var sheet = SpreadsheetApp.getActiveSheet();
+  var formula = SpreadsheetApp.getActiveRange().getFormula();
+  var args = formula.match(/=\w+\((.*)\)/i);
+  try {
+    var range = sheet.getRange(args[1]);
+  }
+  catch(e) {
+    throw new Error(args[1] + ' is not a valid range');
+  }
+  var formulas = range.getFormulas();
+  var output = [];
+  for (var i = 0; i < formulas.length; i++) {
+    var row = [];
+    for (var j = 0; j < formulas[0].length; j++) {
+      var url = formulas[i][j].match(/=hyperlink\("([^"]+)"/i);      
+      row.push(url ? Replaces(url[1],formulas[i][j]) : '');
+    }
+    output.push(row);
+  }
+  return output
+}
+
+function Replaces(url,a){
+
+var manhuwa = true;
+
+var astr = (""+ a).split(',')[1];
+var numberPattern = /\d+/g;
+
+astr = astr.match( numberPattern ).join('');
+
+
+var va = parseInt(astr,va);
+
+var nunstr = "";
+
+if(va < 10){   
+   nunstr = "0" + va;
+}
+else{
+  nunstr = ""+va;
+}
+   
+console.log(va);
+
+nunstr = manhuwa ? "":nunstr+" ";
+
+//var k = (""+ url).split(',')[1].replace("\"","").replace(".webp\")","");
+//var vk = parseInt(k,vk);
+var str = url;//.match(/=hyperlink\("([^"]+)"/i);
+
+var str2 = str.replace("https://drive.google.com/file/d/",(nunstr+"<img class=\"alignnone size-full\" src=\"https://docs.google.com/uc?id="));
+var str3 = str2.replace("/view?usp=drivesdk","\"/>");
+
+return str3;
+
+}
+
+function CompareStringArray(a , b ){
+
+
+var astr = (""+ a).split(',')[1];
+var bstr = (""+ b).split(',')[1];
+
+//var astr = (""+ a).split(',')[1].replace("\"","").replace(".webp\")","");
+//var bstr = (""+ b).split(',')[1].replace("\"","").replace(".webp\")","");
+
+var numberPattern = /\d+/g;
+
+astr = astr.match( numberPattern ).join('');
+bstr = bstr.match( numberPattern ).join('');
+
+
+var va = parseInt(astr,va);
+var vb = parseInt(bstr,vb);
+
+var ret = va - vb;
+
+console.log(""+va+"|"+vb+"|"+ret+"|");
+return ret;
+
+
+}
